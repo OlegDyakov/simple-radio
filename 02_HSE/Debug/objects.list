@@ -1,0 +1,4 @@
+"Src/gpio.o"
+"Src/main.o"
+"Src/system_init.o"
+"Src/vectors.o"
