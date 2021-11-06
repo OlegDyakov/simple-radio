@@ -1,0 +1,2 @@
+system_init.c:15:6:start_up	16	static
+system_init.c:39:6:SystemClock_Config	4	static
