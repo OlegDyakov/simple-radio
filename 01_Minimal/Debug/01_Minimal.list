@@ -1,0 +1,225 @@
+
+01_Minimal.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .vectors      00000400  08000000  08000000  00010000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000000f0  08000400  08000400  00010400  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .init         00000004  080004f0  080004f0  000104f0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .fini         00000004  080004f4  080004f4  000104f4  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  4 .bss          00000000  20000000  20000000  00000000  2**0
+                  ALLOC
+  5 .data         00000000  20000000  20000000  000104f8  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .ARM.attributes 00000030  00000000  00000000  000104f8  2**0
+                  CONTENTS, READONLY
+  7 .comment      00000053  00000000  00000000  00010528  2**0
+                  CONTENTS, READONLY
+  8 .debug_info   00000287  00000000  00000000  0001057b  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_abbrev 000001e4  00000000  00000000  00010802  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_aranges 00000088  00000000  00000000  000109e6  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_ranges 00000048  00000000  00000000  00010a6e  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 12 .debug_macro  00000cfa  00000000  00000000  00010ab6  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_line   000002a2  00000000  00000000  000117b0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_str    0000375a  00000000  00000000  00011a52  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_frame  000000d4  00000000  00000000  000151ac  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000400 <GpioInit>:
+#include <stm32g431.h>
+
+
+void GpioInit(void)
+{
+ 8000400:	b480      	push	{r7}
+ 8000402:	af00      	add	r7, sp, #0
+	SET_BIT(RCC_AHB2ENR, RCC_AHB2ENR_GPIOBEN);    // Подать тактовый сигнал на модуль GPIOA
+ 8000404:	4b0d      	ldr	r3, [pc, #52]	; (800043c <GpioInit+0x3c>)
+ 8000406:	681b      	ldr	r3, [r3, #0]
+ 8000408:	4a0c      	ldr	r2, [pc, #48]	; (800043c <GpioInit+0x3c>)
+ 800040a:	f043 0302 	orr.w	r3, r3, #2
+ 800040e:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(GPIOB_MODER,  GPIO_MODER_MODE8, 1<<GPIO_MODER_MODE8_Pos); //Включить PIN8 на вывод (светодиод LD2)
+ 8000410:	4b0b      	ldr	r3, [pc, #44]	; (8000440 <GpioInit+0x40>)
+ 8000412:	681b      	ldr	r3, [r3, #0]
+ 8000414:	f423 3340 	bic.w	r3, r3, #196608	; 0x30000
+ 8000418:	4a09      	ldr	r2, [pc, #36]	; (8000440 <GpioInit+0x40>)
+ 800041a:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 800041e:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(GPIOB_MODER,  GPIO_MODER_MODE7, 1<<GPIO_MODER_MODE7_Pos); //Включить PIN7 на вывод
+ 8000420:	4b07      	ldr	r3, [pc, #28]	; (8000440 <GpioInit+0x40>)
+ 8000422:	681b      	ldr	r3, [r3, #0]
+ 8000424:	f423 4340 	bic.w	r3, r3, #49152	; 0xc000
+ 8000428:	4a05      	ldr	r2, [pc, #20]	; (8000440 <GpioInit+0x40>)
+ 800042a:	f443 4380 	orr.w	r3, r3, #16384	; 0x4000
+ 800042e:	6013      	str	r3, [r2, #0]
+}
+ 8000430:	bf00      	nop
+ 8000432:	46bd      	mov	sp, r7
+ 8000434:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000438:	4770      	bx	lr
+ 800043a:	bf00      	nop
+ 800043c:	4002104c 	.word	0x4002104c
+ 8000440:	48000400 	.word	0x48000400
+
+08000444 <main>:
+#include <stm32g431.h>
+
+void GpioInit(void);
+
+int main(void)
+{
+ 8000444:	b580      	push	{r7, lr}
+ 8000446:	b082      	sub	sp, #8
+ 8000448:	af00      	add	r7, sp, #0
+		
+	GpioInit();	//Настройка линий PB7 и PB8 на вывод
+ 800044a:	f7ff ffd9 	bl	8000400 <GpioInit>
+
+	while(1)
+	{
+		uint32_t i=1000000;				      //Количество итераций в цикле задержки
+ 800044e:	4b0b      	ldr	r3, [pc, #44]	; (800047c <main+0x38>)
+ 8000450:	607b      	str	r3, [r7, #4]
+		while(i)i--; 						  //Задержка
+ 8000452:	e002      	b.n	800045a <main+0x16>
+ 8000454:	687b      	ldr	r3, [r7, #4]
+ 8000456:	3b01      	subs	r3, #1
+ 8000458:	607b      	str	r3, [r7, #4]
+ 800045a:	687b      	ldr	r3, [r7, #4]
+ 800045c:	2b00      	cmp	r3, #0
+ 800045e:	d1f9      	bne.n	8000454 <main+0x10>
+		INVERT_BIT(GPIOB_ODR, GPIO_ODR_OD8);  //Инвертировать LD2 (PB8)
+ 8000460:	4b07      	ldr	r3, [pc, #28]	; (8000480 <main+0x3c>)
+ 8000462:	681b      	ldr	r3, [r3, #0]
+ 8000464:	4a06      	ldr	r2, [pc, #24]	; (8000480 <main+0x3c>)
+ 8000466:	f483 7380 	eor.w	r3, r3, #256	; 0x100
+ 800046a:	6013      	str	r3, [r2, #0]
+		INVERT_BIT(GPIOB_ODR, GPIO_ODR_OD7);  //Инвертировать (PB7)
+ 800046c:	4b04      	ldr	r3, [pc, #16]	; (8000480 <main+0x3c>)
+ 800046e:	681b      	ldr	r3, [r3, #0]
+ 8000470:	4a03      	ldr	r2, [pc, #12]	; (8000480 <main+0x3c>)
+ 8000472:	f083 0380 	eor.w	r3, r3, #128	; 0x80
+ 8000476:	6013      	str	r3, [r2, #0]
+	{
+ 8000478:	e7e9      	b.n	800044e <main+0xa>
+ 800047a:	bf00      	nop
+ 800047c:	000f4240 	.word	0x000f4240
+ 8000480:	48000414 	.word	0x48000414
+
+08000484 <start_up>:
+
+int main(void);
+
+/* Точка входа  */
+void start_up(void)
+{
+ 8000484:	b580      	push	{r7, lr}
+ 8000486:	b082      	sub	sp, #8
+ 8000488:	af00      	add	r7, sp, #0
+	uint32_t *src, *dst;
+
+	/* Копирование данных секции .data из FLASH в RAM */
+	src = &_sdata_flash;
+ 800048a:	4b11      	ldr	r3, [pc, #68]	; (80004d0 <start_up+0x4c>)
+ 800048c:	607b      	str	r3, [r7, #4]
+	dst = &_sdata_ram;
+ 800048e:	4b11      	ldr	r3, [pc, #68]	; (80004d4 <start_up+0x50>)
+ 8000490:	603b      	str	r3, [r7, #0]
+	while (dst < &_edata_ram) {
+ 8000492:	e007      	b.n	80004a4 <start_up+0x20>
+		*dst++ = *src++;
+ 8000494:	687a      	ldr	r2, [r7, #4]
+ 8000496:	1d13      	adds	r3, r2, #4
+ 8000498:	607b      	str	r3, [r7, #4]
+ 800049a:	683b      	ldr	r3, [r7, #0]
+ 800049c:	1d19      	adds	r1, r3, #4
+ 800049e:	6039      	str	r1, [r7, #0]
+ 80004a0:	6812      	ldr	r2, [r2, #0]
+ 80004a2:	601a      	str	r2, [r3, #0]
+	while (dst < &_edata_ram) {
+ 80004a4:	683b      	ldr	r3, [r7, #0]
+ 80004a6:	4a0c      	ldr	r2, [pc, #48]	; (80004d8 <start_up+0x54>)
+ 80004a8:	4293      	cmp	r3, r2
+ 80004aa:	d3f3      	bcc.n	8000494 <start_up+0x10>
+	}
+
+	/* Запись нулей в область памяти секции .bss */
+	dst = &_sbss;
+ 80004ac:	4b0b      	ldr	r3, [pc, #44]	; (80004dc <start_up+0x58>)
+ 80004ae:	603b      	str	r3, [r7, #0]
+	while (dst < &_ebss) {
+ 80004b0:	e004      	b.n	80004bc <start_up+0x38>
+		*dst++ = 0;
+ 80004b2:	683b      	ldr	r3, [r7, #0]
+ 80004b4:	1d1a      	adds	r2, r3, #4
+ 80004b6:	603a      	str	r2, [r7, #0]
+ 80004b8:	2200      	movs	r2, #0
+ 80004ba:	601a      	str	r2, [r3, #0]
+	while (dst < &_ebss) {
+ 80004bc:	683b      	ldr	r3, [r7, #0]
+ 80004be:	4a08      	ldr	r2, [pc, #32]	; (80004e0 <start_up+0x5c>)
+ 80004c0:	4293      	cmp	r3, r2
+ 80004c2:	d3f6      	bcc.n	80004b2 <start_up+0x2e>
+	}
+
+	main();
+ 80004c4:	f7ff ffbe 	bl	8000444 <main>
+}
+ 80004c8:	bf00      	nop
+ 80004ca:	3708      	adds	r7, #8
+ 80004cc:	46bd      	mov	sp, r7
+ 80004ce:	bd80      	pop	{r7, pc}
+ 80004d0:	080004f8 	.word	0x080004f8
+ 80004d4:	20000000 	.word	0x20000000
+ 80004d8:	20000000 	.word	0x20000000
+ 80004dc:	20000000 	.word	0x20000000
+ 80004e0:	20000000 	.word	0x20000000
+
+080004e4 <nmi_handler>:
+};
+
+
+/* Обработчик немаскируемого прерывания  */
+void nmi_handler(void)
+{
+ 80004e4:	b480      	push	{r7}
+ 80004e6:	af00      	add	r7, sp, #0
+	for (;;);
+ 80004e8:	e7fe      	b.n	80004e8 <nmi_handler+0x4>
+
+080004ea <hardfault_handler>:
+}
+
+/* Обработчик прерывания аппаратной ошибки */
+void hardfault_handler(void)
+{
+ 80004ea:	b480      	push	{r7}
+ 80004ec:	af00      	add	r7, sp, #0
+	for (;;);
+ 80004ee:	e7fe      	b.n	80004ee <hardfault_handler+0x4>
+
+Disassembly of section .init:
+
+080004f0 <_init>:
+ 80004f0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80004f2:	bf00      	nop
+
+Disassembly of section .fini:
+
+080004f4 <_fini>:
+ 80004f4:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80004f6:	bf00      	nop
