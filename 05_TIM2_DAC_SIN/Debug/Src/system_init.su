@@ -1,4 +1,0 @@
-system_init.c:14:6:start_up	16	static
-system_init.c:40:6:nmi_handler	4	static
-system_init.c:46:6:hardfault_handler	4	static
-system_init.c:51:6:SystemClock_Config	4	static
