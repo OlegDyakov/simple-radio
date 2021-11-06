@@ -1,0 +1,2 @@
+tim2.c:4:6:TIM2_Init	4	static
+tim2.c:16:6:TIM2_IRQHandler	4	static
