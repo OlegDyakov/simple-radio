@@ -1,0 +1,465 @@
+
+05_TIM2_DAC_SIN.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .vectors      00000400  08000000  08000000  00010000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         0000029c  08000400  08000400  00010400  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .init         00000004  0800069c  0800069c  0001069c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .fini         00000004  080006a0  080006a0  000106a0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  4 .bss          00000004  20000000  20000000  00030000  2**2
+                  ALLOC
+  5 .data         0000000c  20000004  080006a4  00020004  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .ARM.attributes 00000030  00000000  00000000  00020010  2**0
+                  CONTENTS, READONLY
+  7 .comment      00000053  00000000  00000000  00020040  2**0
+                  CONTENTS, READONLY
+  8 .debug_info   00000393  00000000  00000000  00020093  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+  9 .debug_abbrev 00000290  00000000  00000000  00020426  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 10 .debug_aranges 000000d8  00000000  00000000  000206b6  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 11 .debug_ranges 00000070  00000000  00000000  0002078e  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 12 .debug_macro  000010a3  00000000  00000000  000207fe  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_line   00000464  00000000  00000000  000218a1  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_str    00004871  00000000  00000000  00021d05  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_frame  00000160  00000000  00000000  00026578  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000400 <DAC1_Init>:
+#include <stm32g431.h>
+
+
+//Выход DAC1 на PA4
+void DAC1_Init(void)
+{
+ 8000400:	b480      	push	{r7}
+ 8000402:	af00      	add	r7, sp, #0
+
+	SET_BIT(RCC_AHB2ENR, RCC_AHB2ENR_DAC1EN );    // Подать тактовый сигнал на DAC1
+ 8000404:	4b09      	ldr	r3, [pc, #36]	; (800042c <DAC1_Init+0x2c>)
+ 8000406:	681b      	ldr	r3, [r3, #0]
+ 8000408:	4a08      	ldr	r2, [pc, #32]	; (800042c <DAC1_Init+0x2c>)
+ 800040a:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 800040e:	6013      	str	r3, [r2, #0]
+	SET_BIT(DAC1_CR, 1); 						  // Включить выход DAC1
+ 8000410:	4b07      	ldr	r3, [pc, #28]	; (8000430 <DAC1_Init+0x30>)
+ 8000412:	681b      	ldr	r3, [r3, #0]
+ 8000414:	4a06      	ldr	r2, [pc, #24]	; (8000430 <DAC1_Init+0x30>)
+ 8000416:	f043 0301 	orr.w	r3, r3, #1
+ 800041a:	6013      	str	r3, [r2, #0]
+	DAC1_DHR12R1 = 0;							  // Записать 0 в регистр данных DAC1
+ 800041c:	4b05      	ldr	r3, [pc, #20]	; (8000434 <DAC1_Init+0x34>)
+ 800041e:	2200      	movs	r2, #0
+ 8000420:	601a      	str	r2, [r3, #0]
+
+}
+ 8000422:	bf00      	nop
+ 8000424:	46bd      	mov	sp, r7
+ 8000426:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800042a:	4770      	bx	lr
+ 800042c:	4002104c 	.word	0x4002104c
+ 8000430:	50000800 	.word	0x50000800
+ 8000434:	50000808 	.word	0x50000808
+
+08000438 <GpioInit>:
+#include <stm32g431.h>
+
+
+void GpioInit(void)
+{
+ 8000438:	b480      	push	{r7}
+ 800043a:	af00      	add	r7, sp, #0
+	SET_BIT(RCC_AHB2ENR, RCC_AHB2ENR_GPIOBEN);    // Подать тактовый сигнал на модуль GPIOB
+ 800043c:	4b0d      	ldr	r3, [pc, #52]	; (8000474 <GpioInit+0x3c>)
+ 800043e:	681b      	ldr	r3, [r3, #0]
+ 8000440:	4a0c      	ldr	r2, [pc, #48]	; (8000474 <GpioInit+0x3c>)
+ 8000442:	f043 0302 	orr.w	r3, r3, #2
+ 8000446:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(GPIOB_MODER,  GPIO_MODER_MODE8, 1<<GPIO_MODER_MODE8_Pos); //Включить PIN8 на вывод (светодиод LD2)
+ 8000448:	4b0b      	ldr	r3, [pc, #44]	; (8000478 <GpioInit+0x40>)
+ 800044a:	681b      	ldr	r3, [r3, #0]
+ 800044c:	f423 3340 	bic.w	r3, r3, #196608	; 0x30000
+ 8000450:	4a09      	ldr	r2, [pc, #36]	; (8000478 <GpioInit+0x40>)
+ 8000452:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 8000456:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(GPIOB_MODER,  GPIO_MODER_MODE7, 1<<GPIO_MODER_MODE7_Pos); //Включить PIN7 на вывод
+ 8000458:	4b07      	ldr	r3, [pc, #28]	; (8000478 <GpioInit+0x40>)
+ 800045a:	681b      	ldr	r3, [r3, #0]
+ 800045c:	f423 4340 	bic.w	r3, r3, #49152	; 0xc000
+ 8000460:	4a05      	ldr	r2, [pc, #20]	; (8000478 <GpioInit+0x40>)
+ 8000462:	f443 4380 	orr.w	r3, r3, #16384	; 0x4000
+ 8000466:	6013      	str	r3, [r2, #0]
+}
+ 8000468:	bf00      	nop
+ 800046a:	46bd      	mov	sp, r7
+ 800046c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000470:	4770      	bx	lr
+ 8000472:	bf00      	nop
+ 8000474:	4002104c 	.word	0x4002104c
+ 8000478:	48000400 	.word	0x48000400
+
+0800047c <main>:
+void GpioInit(void);
+void DAC1_Init(void);
+void TIM2_Init(void);
+
+int main(void)
+{
+ 800047c:	b580      	push	{r7, lr}
+ 800047e:	af00      	add	r7, sp, #0
+
+	GpioInit();
+ 8000480:	f7ff ffda 	bl	8000438 <GpioInit>
+	DAC1_Init();
+ 8000484:	f7ff ffbc 	bl	8000400 <DAC1_Init>
+	TIM2_Init();
+ 8000488:	f000 f89a 	bl	80005c0 <TIM2_Init>
+
+	while(1)
+ 800048c:	e7fe      	b.n	800048c <main+0x10>
+	...
+
+08000490 <start_up>:
+int main(void);
+void SystemClock_Config(void);
+
+/* Точка входа  */
+void start_up(void)
+{
+ 8000490:	b580      	push	{r7, lr}
+ 8000492:	b082      	sub	sp, #8
+ 8000494:	af00      	add	r7, sp, #0
+	uint32_t *src, *dst;
+
+	/* Копирование данных секции .data из FLASH в RAM */
+	src = &_sdata_flash;
+ 8000496:	4b15      	ldr	r3, [pc, #84]	; (80004ec <start_up+0x5c>)
+ 8000498:	607b      	str	r3, [r7, #4]
+	dst = &_sdata_ram;
+ 800049a:	4b15      	ldr	r3, [pc, #84]	; (80004f0 <start_up+0x60>)
+ 800049c:	603b      	str	r3, [r7, #0]
+	while (dst < &_edata_ram) {
+ 800049e:	e007      	b.n	80004b0 <start_up+0x20>
+		*dst++ = *src++;
+ 80004a0:	687a      	ldr	r2, [r7, #4]
+ 80004a2:	1d13      	adds	r3, r2, #4
+ 80004a4:	607b      	str	r3, [r7, #4]
+ 80004a6:	683b      	ldr	r3, [r7, #0]
+ 80004a8:	1d19      	adds	r1, r3, #4
+ 80004aa:	6039      	str	r1, [r7, #0]
+ 80004ac:	6812      	ldr	r2, [r2, #0]
+ 80004ae:	601a      	str	r2, [r3, #0]
+	while (dst < &_edata_ram) {
+ 80004b0:	683b      	ldr	r3, [r7, #0]
+ 80004b2:	4a10      	ldr	r2, [pc, #64]	; (80004f4 <start_up+0x64>)
+ 80004b4:	4293      	cmp	r3, r2
+ 80004b6:	d3f3      	bcc.n	80004a0 <start_up+0x10>
+	}
+
+	/* Запись нулей в область памяти секции .bss */
+	dst = &_sbss;
+ 80004b8:	4b0f      	ldr	r3, [pc, #60]	; (80004f8 <start_up+0x68>)
+ 80004ba:	603b      	str	r3, [r7, #0]
+	while (dst < &_ebss) {
+ 80004bc:	e004      	b.n	80004c8 <start_up+0x38>
+		*dst++ = 0;
+ 80004be:	683b      	ldr	r3, [r7, #0]
+ 80004c0:	1d1a      	adds	r2, r3, #4
+ 80004c2:	603a      	str	r2, [r7, #0]
+ 80004c4:	2200      	movs	r2, #0
+ 80004c6:	601a      	str	r2, [r3, #0]
+	while (dst < &_ebss) {
+ 80004c8:	683b      	ldr	r3, [r7, #0]
+ 80004ca:	4a0c      	ldr	r2, [pc, #48]	; (80004fc <start_up+0x6c>)
+ 80004cc:	4293      	cmp	r3, r2
+ 80004ce:	d3f6      	bcc.n	80004be <start_up+0x2e>
+	}
+
+	/* Запуск FPU */
+	//SCB_CPACR |= ((3UL << (10*2))|(3UL << (11*2)));
+	SET_BIT(SCB_CPACR, (3 << 20) | (3 << 22) ); /* set CP10 and CP11 Full Access */
+ 80004d0:	4b0b      	ldr	r3, [pc, #44]	; (8000500 <start_up+0x70>)
+ 80004d2:	681b      	ldr	r3, [r3, #0]
+ 80004d4:	4a0a      	ldr	r2, [pc, #40]	; (8000500 <start_up+0x70>)
+ 80004d6:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
+ 80004da:	6013      	str	r3, [r2, #0]
+
+	SystemClock_Config();
+ 80004dc:	f000 f818 	bl	8000510 <SystemClock_Config>
+	main();
+ 80004e0:	f7ff ffcc 	bl	800047c <main>
+}
+ 80004e4:	bf00      	nop
+ 80004e6:	3708      	adds	r7, #8
+ 80004e8:	46bd      	mov	sp, r7
+ 80004ea:	bd80      	pop	{r7, pc}
+ 80004ec:	080006a4 	.word	0x080006a4
+ 80004f0:	20000004 	.word	0x20000004
+ 80004f4:	20000010 	.word	0x20000010
+ 80004f8:	20000000 	.word	0x20000000
+ 80004fc:	20000004 	.word	0x20000004
+ 8000500:	e000ed88 	.word	0xe000ed88
+
+08000504 <nmi_handler>:
+
+/* Обработчик немаскируемого прерывания  */
+void nmi_handler(void)
+{
+ 8000504:	b480      	push	{r7}
+ 8000506:	af00      	add	r7, sp, #0
+	for (;;);
+ 8000508:	e7fe      	b.n	8000508 <nmi_handler+0x4>
+
+0800050a <hardfault_handler>:
+}
+
+/* Обработчик прерывания аппаратной ошибки */
+void hardfault_handler(void)
+{
+ 800050a:	b480      	push	{r7}
+ 800050c:	af00      	add	r7, sp, #0
+	for (;;);
+ 800050e:	e7fe      	b.n	800050e <hardfault_handler+0x4>
+
+08000510 <SystemClock_Config>:
+}
+
+void SystemClock_Config(void)
+{
+ 8000510:	b480      	push	{r7}
+ 8000512:	af00      	add	r7, sp, #0
+
+  //Включить режим повышения выходного напряжения  главного регулятора до 1,28 вольт
+  CLEAR_BIT(PWR_CR5, PWR_CR5_R1MODE);
+ 8000514:	4b23      	ldr	r3, [pc, #140]	; (80005a4 <SystemClock_Config+0x94>)
+ 8000516:	681b      	ldr	r3, [r3, #0]
+ 8000518:	4a22      	ldr	r2, [pc, #136]	; (80005a4 <SystemClock_Config+0x94>)
+ 800051a:	f423 7380 	bic.w	r3, r3, #256	; 0x100
+ 800051e:	6013      	str	r3, [r2, #0]
+
+  //Установка задержки чтения FLASH памяти до 4-х тактов
+  FLASH_ACR=FLASH_ACR_DBG_SWEN  | FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_LATENCY_4WS ;
+ 8000520:	4b21      	ldr	r3, [pc, #132]	; (80005a8 <SystemClock_Config+0x98>)
+ 8000522:	4a22      	ldr	r2, [pc, #136]	; (80005ac <SystemClock_Config+0x9c>)
+ 8000524:	601a      	str	r2, [r3, #0]
+  while((FLASH_ACR & 0xf) != FLASH_ACR_LATENCY_4WS );
+ 8000526:	bf00      	nop
+ 8000528:	4b1f      	ldr	r3, [pc, #124]	; (80005a8 <SystemClock_Config+0x98>)
+ 800052a:	681b      	ldr	r3, [r3, #0]
+ 800052c:	f003 030f 	and.w	r3, r3, #15
+ 8000530:	2b04      	cmp	r3, #4
+ 8000532:	d1f9      	bne.n	8000528 <SystemClock_Config+0x18>
+
+  //Подключение внешнего кварцевого резонатора (HSE ON)
+  SET_BIT(RCC_CR, RCC_CR_HSEON);
+ 8000534:	4b1e      	ldr	r3, [pc, #120]	; (80005b0 <SystemClock_Config+0xa0>)
+ 8000536:	681b      	ldr	r3, [r3, #0]
+ 8000538:	4a1d      	ldr	r2, [pc, #116]	; (80005b0 <SystemClock_Config+0xa0>)
+ 800053a:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 800053e:	6013      	str	r3, [r2, #0]
+  while(READ_BIT(RCC_CR, RCC_CR_HSERDY) != (RCC_CR_HSERDY));
+ 8000540:	bf00      	nop
+ 8000542:	4b1b      	ldr	r3, [pc, #108]	; (80005b0 <SystemClock_Config+0xa0>)
+ 8000544:	681b      	ldr	r3, [r3, #0]
+ 8000546:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 800054a:	f5b3 3f00 	cmp.w	r3, #131072	; 0x20000
+ 800054e:	d1f8      	bne.n	8000542 <SystemClock_Config+0x32>
+
+  //Настройка PLL, используемого для SYSCLK домена
+  //PLLM=6 (значение поля 5), PLLN=85 (значение поля 85), PLLR=2 (значение поля 0)
+  MODIFY_REG(RCC_PLLCFGR, RCC_PLLCFGR_PLLSRC     | RCC_PLLCFGR_PLLM         | RCC_PLLCFGR_PLLN             | RCC_PLLCFGR_PLLR,
+ 8000550:	4b18      	ldr	r3, [pc, #96]	; (80005b4 <SystemClock_Config+0xa4>)
+ 8000552:	681a      	ldr	r2, [r3, #0]
+ 8000554:	4b18      	ldr	r3, [pc, #96]	; (80005b8 <SystemClock_Config+0xa8>)
+ 8000556:	4013      	ands	r3, r2
+ 8000558:	4a16      	ldr	r2, [pc, #88]	; (80005b4 <SystemClock_Config+0xa4>)
+ 800055a:	f443 43aa 	orr.w	r3, r3, #21760	; 0x5500
+ 800055e:	f043 0353 	orr.w	r3, r3, #83	; 0x53
+ 8000562:	6013      	str	r3, [r2, #0]
+		                  RCC_PLLCFGR_PLLSRC_HSE | 5 <<RCC_PLLCFGR_PLLM_Pos | (85 << RCC_PLLCFGR_PLLN_Pos) | 0<<RCC_PLLCFGR_PLLR_Pos);
+
+  //Включение PLL
+  SET_BIT(RCC_CR, RCC_CR_PLLON);
+ 8000564:	4b12      	ldr	r3, [pc, #72]	; (80005b0 <SystemClock_Config+0xa0>)
+ 8000566:	681b      	ldr	r3, [r3, #0]
+ 8000568:	4a11      	ldr	r2, [pc, #68]	; (80005b0 <SystemClock_Config+0xa0>)
+ 800056a:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 800056e:	6013      	str	r3, [r2, #0]
+  while(READ_BIT(RCC_CR, RCC_CR_PLLRDY) != (RCC_CR_PLLRDY));
+ 8000570:	bf00      	nop
+ 8000572:	4b0f      	ldr	r3, [pc, #60]	; (80005b0 <SystemClock_Config+0xa0>)
+ 8000574:	681b      	ldr	r3, [r3, #0]
+ 8000576:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
+ 800057a:	f1b3 7f00 	cmp.w	r3, #33554432	; 0x2000000
+ 800057e:	d1f8      	bne.n	8000572 <SystemClock_Config+0x62>
+
+  //Включение выхода PLL, используемого для  SYSCLK
+  SET_BIT(RCC_PLLCFGR, RCC_PLLCFGR_PLLREN);
+ 8000580:	4b0c      	ldr	r3, [pc, #48]	; (80005b4 <SystemClock_Config+0xa4>)
+ 8000582:	681b      	ldr	r3, [r3, #0]
+ 8000584:	4a0b      	ldr	r2, [pc, #44]	; (80005b4 <SystemClock_Config+0xa4>)
+ 8000586:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 800058a:	6013      	str	r3, [r2, #0]
+
+  //Подключение выхода PLL в качестве источника  SYSCLK
+  MODIFY_REG(RCC_CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
+ 800058c:	4b0b      	ldr	r3, [pc, #44]	; (80005bc <SystemClock_Config+0xac>)
+ 800058e:	681b      	ldr	r3, [r3, #0]
+ 8000590:	4a0a      	ldr	r2, [pc, #40]	; (80005bc <SystemClock_Config+0xac>)
+ 8000592:	f043 0303 	orr.w	r3, r3, #3
+ 8000596:	6013      	str	r3, [r2, #0]
+
+
+}
+ 8000598:	bf00      	nop
+ 800059a:	46bd      	mov	sp, r7
+ 800059c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80005a0:	4770      	bx	lr
+ 80005a2:	bf00      	nop
+ 80005a4:	40007080 	.word	0x40007080
+ 80005a8:	40022000 	.word	0x40022000
+ 80005ac:	00040604 	.word	0x00040604
+ 80005b0:	40021000 	.word	0x40021000
+ 80005b4:	4002100c 	.word	0x4002100c
+ 80005b8:	f9ff800c 	.word	0xf9ff800c
+ 80005bc:	40021008 	.word	0x40021008
+
+080005c0 <TIM2_Init>:
+#include <stm32g431.h>
+
+
+void TIM2_Init(void)
+{
+ 80005c0:	b480      	push	{r7}
+ 80005c2:	af00      	add	r7, sp, #0
+
+  SET_BIT(RCC_APB1ENR1, RCC_APB1ENR1_TIM2EN); // Подаем на TIM2 тактовую частоту
+ 80005c4:	4b10      	ldr	r3, [pc, #64]	; (8000608 <TIM2_Init+0x48>)
+ 80005c6:	681b      	ldr	r3, [r3, #0]
+ 80005c8:	4a0f      	ldr	r2, [pc, #60]	; (8000608 <TIM2_Init+0x48>)
+ 80005ca:	f043 0301 	orr.w	r3, r3, #1
+ 80005ce:	6013      	str	r3, [r2, #0]
+
+  // Загружаем Auto-reload register  f = 170 000 000/(TIM2_ARR + 1) (1 MHz -> 170 - 1)
+  TIM2_ARR = 170 - 1;
+ 80005d0:	4b0e      	ldr	r3, [pc, #56]	; (800060c <TIM2_Init+0x4c>)
+ 80005d2:	22a9      	movs	r2, #169	; 0xa9
+ 80005d4:	601a      	str	r2, [r3, #0]
+
+  SET_BIT(NVIC_ISER0, (1 << 28));		// Разрешить в NVIC прерывание #28 (TIM2)
+ 80005d6:	4b0e      	ldr	r3, [pc, #56]	; (8000610 <TIM2_Init+0x50>)
+ 80005d8:	681b      	ldr	r3, [r3, #0]
+ 80005da:	4a0d      	ldr	r2, [pc, #52]	; (8000610 <TIM2_Init+0x50>)
+ 80005dc:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
+ 80005e0:	6013      	str	r3, [r2, #0]
+  SET_BIT(TIM2_DIER, TIM_DIER_UIE);		// Разрешить прерывание по переполнению таймера
+ 80005e2:	4b0c      	ldr	r3, [pc, #48]	; (8000614 <TIM2_Init+0x54>)
+ 80005e4:	681b      	ldr	r3, [r3, #0]
+ 80005e6:	4a0b      	ldr	r2, [pc, #44]	; (8000614 <TIM2_Init+0x54>)
+ 80005e8:	f043 0301 	orr.w	r3, r3, #1
+ 80005ec:	6013      	str	r3, [r2, #0]
+  SET_BIT(TIM2_CR1, TIM_CR1_CEN);		// Включить таймер
+ 80005ee:	f04f 4380 	mov.w	r3, #1073741824	; 0x40000000
+ 80005f2:	681b      	ldr	r3, [r3, #0]
+ 80005f4:	f04f 4280 	mov.w	r2, #1073741824	; 0x40000000
+ 80005f8:	f043 0301 	orr.w	r3, r3, #1
+ 80005fc:	6013      	str	r3, [r2, #0]
+}
+ 80005fe:	bf00      	nop
+ 8000600:	46bd      	mov	sp, r7
+ 8000602:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000606:	4770      	bx	lr
+ 8000608:	40021058 	.word	0x40021058
+ 800060c:	4000002c 	.word	0x4000002c
+ 8000610:	e000e100 	.word	0xe000e100
+ 8000614:	4000000c 	.word	0x4000000c
+
+08000618 <TIM2_IRQHandler>:
+#define PI  3.1415926	  // Число ПИ
+#define PW  0.031415926   // PI*f*ds при f = 10000 Hz
+
+
+void TIM2_IRQHandler(void)
+{
+ 8000618:	b480      	push	{r7}
+ 800061a:	af00      	add	r7, sp, #0
+	static float R = 4 * PW * PW; 	//R=(2*PW))^2
+	static float V=0;
+	static float X = 4096/3.3 * 0.5;//Начальное значение - амплитуда сигнала 0.5 V
+	static float S=1500; 			//Смещение DAC
+
+	CLEAR_BIT(TIM2_SR, TIM_SR_UIF);	//Сброс флага прерывания по переполнению таймера
+ 800061c:	4b19      	ldr	r3, [pc, #100]	; (8000684 <TIM2_IRQHandler+0x6c>)
+ 800061e:	681b      	ldr	r3, [r3, #0]
+ 8000620:	4a18      	ldr	r2, [pc, #96]	; (8000684 <TIM2_IRQHandler+0x6c>)
+ 8000622:	f023 0301 	bic.w	r3, r3, #1
+ 8000626:	6013      	str	r3, [r2, #0]
+
+	//Осциллятор
+	V -= X*R;
+ 8000628:	4b17      	ldr	r3, [pc, #92]	; (8000688 <TIM2_IRQHandler+0x70>)
+ 800062a:	ed93 7a00 	vldr	s14, [r3]
+ 800062e:	4b17      	ldr	r3, [pc, #92]	; (800068c <TIM2_IRQHandler+0x74>)
+ 8000630:	edd3 6a00 	vldr	s13, [r3]
+ 8000634:	4b16      	ldr	r3, [pc, #88]	; (8000690 <TIM2_IRQHandler+0x78>)
+ 8000636:	edd3 7a00 	vldr	s15, [r3]
+ 800063a:	ee66 7aa7 	vmul.f32	s15, s13, s15
+ 800063e:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8000642:	4b11      	ldr	r3, [pc, #68]	; (8000688 <TIM2_IRQHandler+0x70>)
+ 8000644:	edc3 7a00 	vstr	s15, [r3]
+	X += V;
+ 8000648:	4b10      	ldr	r3, [pc, #64]	; (800068c <TIM2_IRQHandler+0x74>)
+ 800064a:	ed93 7a00 	vldr	s14, [r3]
+ 800064e:	4b0e      	ldr	r3, [pc, #56]	; (8000688 <TIM2_IRQHandler+0x70>)
+ 8000650:	edd3 7a00 	vldr	s15, [r3]
+ 8000654:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8000658:	4b0c      	ldr	r3, [pc, #48]	; (800068c <TIM2_IRQHandler+0x74>)
+ 800065a:	edc3 7a00 	vstr	s15, [r3]
+
+	DAC1_DHR12R1 = X + S;
+ 800065e:	4b0b      	ldr	r3, [pc, #44]	; (800068c <TIM2_IRQHandler+0x74>)
+ 8000660:	ed93 7a00 	vldr	s14, [r3]
+ 8000664:	4b0b      	ldr	r3, [pc, #44]	; (8000694 <TIM2_IRQHandler+0x7c>)
+ 8000666:	edd3 7a00 	vldr	s15, [r3]
+ 800066a:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 800066e:	4b0a      	ldr	r3, [pc, #40]	; (8000698 <TIM2_IRQHandler+0x80>)
+ 8000670:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8000674:	ee17 2a90 	vmov	r2, s15
+ 8000678:	601a      	str	r2, [r3, #0]
+
+}
+ 800067a:	bf00      	nop
+ 800067c:	46bd      	mov	sp, r7
+ 800067e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000682:	4770      	bx	lr
+ 8000684:	40000010 	.word	0x40000010
+ 8000688:	20000000 	.word	0x20000000
+ 800068c:	20000004 	.word	0x20000004
+ 8000690:	20000008 	.word	0x20000008
+ 8000694:	2000000c 	.word	0x2000000c
+ 8000698:	50000808 	.word	0x50000808
+
+Disassembly of section .init:
+
+0800069c <_init>:
+ 800069c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800069e:	bf00      	nop
+
+Disassembly of section .fini:
+
+080006a0 <_fini>:
+ 80006a0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80006a2:	bf00      	nop
