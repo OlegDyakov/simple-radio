@@ -1,2 +1,0 @@
-vectors.c:29:6:nmi_handler	4	static
-vectors.c:35:6:hardfault_handler	4	static
